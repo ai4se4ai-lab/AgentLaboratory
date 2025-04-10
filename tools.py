@@ -303,23 +303,56 @@ def worker_run_code(code_str, output_queue):
         sys.stdout = sys.__stdout__
     output_queue.put(output_capture.getvalue())
 
+# def execute_code(code_str, timeout=600, MAX_LEN=1000):
+#     #code_str = code_str.replace("\\n", "\n")
+#     code_str = "from utils import *\n" + code_str
+#     if "load_dataset('pubmed" in code_str:
+#         return "[CODE EXECUTION ERROR] pubmed Download took way too long. Program terminated"
+#     if "exit(" in code_str:
+#         return "[CODE EXECUTION ERROR] The exit() command is not allowed you must remove this."
+#     output_queue = multiprocessing.Queue()
+#     proc = multiprocessing.Process(target=worker_run_code, args=(code_str, output_queue))
+#     proc.start()
+#     proc.join(timeout)
+#     if proc.is_alive():
+#         proc.terminate()  # Forcefully kill the process
+#         proc.join()
+#         return (f"[CODE EXECUTION ERROR]: Code execution exceeded the timeout limit of {timeout} seconds. "
+#                 "You must reduce the time complexity of your code.")
+#     else:
+#         if not output_queue.empty(): output = output_queue.get()
+#         else: output = ""
+#         return output
+
 def execute_code(code_str, timeout=600, MAX_LEN=1000):
-    #code_str = code_str.replace("\\n", "\n")
     code_str = "from utils import *\n" + code_str
     if "load_dataset('pubmed" in code_str:
         return "[CODE EXECUTION ERROR] pubmed Download took way too long. Program terminated"
     if "exit(" in code_str:
         return "[CODE EXECUTION ERROR] The exit() command is not allowed you must remove this."
+    
     output_queue = multiprocessing.Queue()
     proc = multiprocessing.Process(target=worker_run_code, args=(code_str, output_queue))
     proc.start()
     proc.join(timeout)
+    
+    # Initialize output as empty string
+    output = ""
+    
+    # Check if the process is still alive after timeout
     if proc.is_alive():
         proc.terminate()  # Forcefully kill the process
         proc.join()
         return (f"[CODE EXECUTION ERROR]: Code execution exceeded the timeout limit of {timeout} seconds. "
                 "You must reduce the time complexity of your code.")
     else:
-        if not output_queue.empty(): output = output_queue.get()
-        else: output = ""
-        return output
+        # Safely get output from the queue if available
+        try:
+            if not output_queue.empty():
+                output = output_queue.get(block=False)
+            else:
+                output = ""
+        except Exception as e:
+            output = f"[OUTPUT RETRIEVAL ERROR]: {str(e)}"
+    
+    return output[:MAX_LEN] if MAX_LEN else output

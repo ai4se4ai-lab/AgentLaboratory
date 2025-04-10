@@ -1,5 +1,11 @@
 # Enhanced Agent Laboratory: Using LLM Agents as Research Assistants
 
+## Before installation
+- Make sure you activate the venv: `.\venv_agent_lab\Scripts\activate`
+- Make sure python version running in the .env is `python3.12`
+- If it is not, you need to install `virtualenv`:  `pip install virtualenv`
+- Then change the python version in venv: `.venv_agent_lab --python=python3.12 venv_agent_lab`
+- Log in to the huggingface account: `huggingface-cli login`
 
 <p align="center">
   <img src="media/AgentLabLogo.png" alt="Demonstration of the flow of AgentClinic" style="width: 99%;">

@@ -1,3 +1,8 @@
+flask
+flask_sqlalchemy
+sentence_transformers
+tensorflow
+tf-keras
 absl-py==2.1.0
 accelerate==1.1.1
 aiohappyeyeballs==2.4.3
